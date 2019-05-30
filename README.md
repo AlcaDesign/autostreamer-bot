@@ -1,8 +1,5 @@
 # Autostreamer-Bot
 
-Using a simple chat bot for controls via commands in Twitch chat, stream an
-ffmpeg test pattern to a Twitch channel.
-
 Send an ffmpeg test pattern stream to a Twitch channel controlled by chat
 commands.
 
