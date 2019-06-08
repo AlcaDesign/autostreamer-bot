@@ -17,8 +17,8 @@ const debugMode = DEBUG_LOG === 'true' || DEBUG_LOG === '1';
 
 let ffmpegProcess = null;
 
-const startInstructions = 'Use !startstream to start the stream.';
-const stopInstructions = 'Use !stopstream to stop the stream.';
+const startInstructs = 'Use !startstream to start the stream.';
+const stopInstructs = 'Use !stopstream to stop the stream.';
 
 const client = new tmi.Client({
 	options: {
@@ -52,28 +52,35 @@ client.on('message', (channel, tags, message, self) => {
 	const command = params.shift().toLowerCase();
 	const { username: name } = tags;
 	if(command === 'startstream' || command === 'streamstart') {
+		let reply = `✅ @${name}, stream starting. ${stopInstructs}`;
 		if(ffmpegProcess) {
-			return client.say(channel, `✅ @${name}, already streaming. ${stopInstructions}`);
+			`✅ @${name}, already streaming. ${stopInstructs}`;
 		}
-		try {
-			startStream();
-			client.say(channel, `✅ @${name}, stream starting. ${stopInstructions}`);
-		} catch(err) {
-			console.error(err);
-			client.say(channel, `❗ @${name}, failed to start streaming.`);
+		else {
+			try {
+				startStream();
+			} catch(err) {
+				console.error(err);
+				reply = `❗ @${name}, failed to start streaming.`;
+			}
 		}
+		client.say(channel, reply);
 	}
 	else if(command === 'stopstream' || command === 'streamstop') {
+		let reply = `✅ @${name}, stream starting. ${stopInstructs}`;
 		if(!ffmpegProcess) {
-			return client.say(channel, `❌ @${name}, not currently streaming. ${startInstructions}`);
+			reply = `❌ @${name}, not currently streaming. ${startInstructs}`;
 		}
-		try {
-			stopStream();
-			client.say(channel, `❌ @${name}, stream stopping. ${startInstructions}`);
-		} catch(err) {
-			console.error(err);
-			client.say(channel, `❗ @${name}, failed to stop streaming.`);
+		else {
+			try {
+				stopStream();
+				reply = `❌ @${name}, stream stopping. ${startInstructs}`;
+			} catch(err) {
+				console.error(err);
+				reply = `❗ @${name}, failed to stop streaming.`;
+			}
 		}
+		client.say(channel, reply);
 	}
 });
 
@@ -112,6 +119,6 @@ function stopStream() {
 		return;
 	}
 	debugMode && console.log('Killing the stream');
-		ffmpegProcess.kill();
-		ffmpegProcess = null;
-	}
+	ffmpegProcess.kill();
+	ffmpegProcess = null;
+}
