@@ -4,6 +4,7 @@ const { spawn } = require('child_process');
 const tmi = require('tmi.js');
 
 const {
+	DEBUG_LOG,
 	TWITCH_BOT_USER,
 	TWITCH_BOT_TOKEN,
 	TWITCH_BOT_CHANNEL,
@@ -12,6 +13,8 @@ const {
 	STREAM_KEY
 } = process.env;
 
+const debugMode = DEBUG_LOG === 'true' || DEBUG_LOG === '1';
+
 let ffmpegProcess = null;
 
 const startInstructions = 'Use !startstream to start the stream.';
@@ -19,7 +22,7 @@ const stopInstructions = 'Use !stopstream to stop the stream.';
 
 const client = new tmi.Client({
 	options: {
-		debug: true
+		debug: debugMode
 	},
 	identity: {
 		username: TWITCH_BOT_USER,
@@ -76,10 +79,10 @@ client.on('message', (channel, tags, message, self) => {
 
 function startStream() {
 	if(ffmpegProcess) {
-		console.log('Already streaming');
+		debugMode && console.log('Already streaming');
 		return;
 	}
-	console.log('Started stream');
+	debugMode && console.log('Started stream');
 	const region = INGEST_REGION || 'live-sfo';
 	const size = '640x360';
 	const pixelFormat = 'yuv420p';
@@ -104,9 +107,11 @@ function startStream() {
 }
 
 function stopStream() {
-	if(ffmpegProcess) {
-		console.log('Killing the stream');
+	if(!ffmpegProcess) {
+		debugMode && console.log('Not currently streaming');
+		return;
+	}
+	debugMode && console.log('Killing the stream');
 		ffmpegProcess.kill();
 		ffmpegProcess = null;
 	}
-}
