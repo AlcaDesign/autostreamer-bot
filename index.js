@@ -15,6 +15,7 @@ const {
 
 const debugMode = DEBUG_LOG === 'true' || DEBUG_LOG === '1';
 
+/** @type {import("child_process").ChildProcessWithoutNullStreams} */
 let ffmpegProcess = null;
 
 const startInstructs = 'Use !startstream to start the stream.';
@@ -51,10 +52,11 @@ client.on('message', (channel, tags, message, self) => {
 	const params = message.slice(1).split(' ');
 	const command = params.shift().toLowerCase();
 	const { username: name } = tags;
+	let reply = '';
 	if(command === 'startstream' || command === 'streamstart') {
-		let reply = `✅ @${name}, stream starting. ${stopInstructs}`;
+		reply = `✅ @${name}, stream starting. ${stopInstructs}`;
 		if(ffmpegProcess) {
-			`✅ @${name}, already streaming. ${stopInstructs}`;
+			reply = `✅ @${name}, already streaming. ${stopInstructs}`;
 		}
 		else {
 			try {
@@ -64,10 +66,9 @@ client.on('message', (channel, tags, message, self) => {
 				reply = `❗ @${name}, failed to start streaming.`;
 			}
 		}
-		client.say(channel, reply);
 	}
 	else if(command === 'stopstream' || command === 'streamstop') {
-		let reply = `✅ @${name}, stream starting. ${stopInstructs}`;
+		reply = `✅ @${name}, stream starting. ${stopInstructs}`;
 		if(!ffmpegProcess) {
 			reply = `❌ @${name}, not currently streaming. ${startInstructs}`;
 		}
@@ -80,6 +81,8 @@ client.on('message', (channel, tags, message, self) => {
 				reply = `❗ @${name}, failed to stop streaming.`;
 			}
 		}
+	}
+	if(reply) {
 		client.say(channel, reply);
 	}
 });
