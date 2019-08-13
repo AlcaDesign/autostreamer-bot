@@ -92,7 +92,7 @@ function startStream() {
 		debugMode && console.log('Already streaming');
 		return;
 	}
-	debugMode && console.log('Started stream');
+	debugMode && console.log('Starting stream');
 	const region = INGEST_REGION || 'live-sfo';
 	const size = '640x360';
 	const pixelFormat = 'yuv420p';
@@ -114,6 +114,11 @@ function startStream() {
 		output
 	];
 	ffmpegProcess = spawn('ffmpeg', ffmpegArgs);
+	ffmpegProcess.on('error', console.error);
+	if(debugMode) {
+		ffmpegProcess.stderr.on('data', chunk => console.log(chunk.toString()));
+		console.log('Started stream');
+	}
 }
 
 function stopStream() {
@@ -124,4 +129,5 @@ function stopStream() {
 	debugMode && console.log('Killing the stream');
 	ffmpegProcess.kill();
 	ffmpegProcess = null;
+	debugMode && console.log('Killed the stream');
 }
